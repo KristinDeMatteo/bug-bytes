@@ -3,6 +3,8 @@ import PlayerController from './PlayerController';
 import dudeImg from './assets/dude.png';
 import groundImg from './assets/platform.png';
 import skyImg from './assets/sky.png';
+import bgImg1 from './assets/level_1_bg_1.png';
+import bgImg2 from './assets/level_1_bg_2.png';
 
 class Level extends Phaser.Scene
 {
@@ -16,22 +18,33 @@ class Level extends Phaser.Scene
         this.load.image('sky', skyImg);
         this.load.image('ground', groundImg);
         this.load.spritesheet('dude', dudeImg, { frameWidth: 32, frameHeight: 48 });
+        this.load.image('bg1', bgImg1);
+        this.load.image('bg2', bgImg2);
     }
       
     create ()
     {
-        this.add.image(400, 300, 'sky');
+
+        //  Set the camera and physics bounds
+        this.cameras.main.setBounds(0, 0, 800, 1129 * 2);
+        this.physics.world.setBounds(0, 0, 800, 1129 * 2);   
+        
+        this.add.image(0, 0, 'bg1').setOrigin(0);
+        // 1129 is the height of first bg image
+        this.add.image(0, 1129, 'bg2').setOrigin(0);
 
         this.platforms = this.physics.add.staticGroup();
 
-        this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        this.platforms.create(600, 400, 'ground');
-        this.platforms.create(50, 250, 'ground');
-        this.platforms.create(750, 220, 'ground');
+        //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+        this.platforms.create(600, 500, 'ground');
+        this.platforms.create(50, 220, 'ground');
+        //this.platforms.create(750, 220, 'ground');
 
         this.player = this.physics.add.sprite(10, 45, 'dude');
         // this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
+
+        this.cameras.main.startFollow(this.player);
         
         this.physics.add.collider(this.player, this.platforms);
 
