@@ -5,7 +5,7 @@ export default class IdleState
 		this.player = player
 	}
 
-	enter({maxSpeed, decelTime})
+	enter({maxSpeed, decelTime, ease})
 	{
 		this.player.anims.play("turn");
 
@@ -15,7 +15,7 @@ export default class IdleState
 			targets: this.player.body.velocity,
 			props: { x: { value: 0 } },
 			duration: decelTime * speedPercent,
-			ease: 'Circular.easeOut',
+			ease: ease,
 			repeat: 0,
 			yoyo: false,
 		});
