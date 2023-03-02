@@ -5,6 +5,7 @@ import groundImg from './assets/platform.png';
 import skyImg from './assets/sky.png';
 import bgImg1 from './assets/level_1_bg_1.png';
 import bgImg2 from './assets/level_1_bg_2.png';
+import mainHelloWorld from './assets/mainHelloWorld.png';
 
 class Level extends Phaser.Scene
 {
@@ -20,6 +21,7 @@ class Level extends Phaser.Scene
         this.load.spritesheet('dude', dudeImg, { frameWidth: 32, frameHeight: 48 });
         this.load.image('bg1', bgImg1);
         this.load.image('bg2', bgImg2);
+        this.load.image('mainHelloWorld', mainHelloWorld);
     }
       
     create ()
@@ -37,7 +39,7 @@ class Level extends Phaser.Scene
 
         //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
         this.platforms.create(600, 500, 'ground');
-        this.platforms.create(50, 220, 'ground');
+        this.platforms.create(50, 220, 'mainHelloWorld').setOrigin(0);
         //this.platforms.create(750, 220, 'ground');
 
         this.player = this.physics.add.sprite(10, 45, 'dude');
