@@ -6,6 +6,14 @@ import groundImg from './assets/platform.png';
 import skyImg from './assets/sky.png';
 import bgImg1 from './assets/level_1_bg_1.png';
 import bgImg2 from './assets/level_1_bg_2.png';
+import invisWall from './assets/leftBorder.png';
+import spikes from './assets/spikes.png';
+import mainHelloWorld from './assets/mainHelloWorld.png';
+import mainHelloWorldBubble from './assets/mainHelloWorldBubble.png';
+import mainHelloWorldBubble2 from './assets/mainHelloWorldBubble2.png';
+import mainHelloWorldBubble3 from './assets/mainHelloWorldBubble3.png';
+import mainHelloWorldBubble4 from './assets/mainHelloWorldBubble4.png';
+import mainHelloWorldBubble5 from './assets/mainHelloWorldBubble5.png';
 
 class Level extends Phaser.Scene
 {
@@ -22,11 +30,18 @@ class Level extends Phaser.Scene
         this.load.spritesheet('dudeRev', dudeImgRev, { frameWidth: 50, frameHeight: 50 });
         this.load.image('bg1', bgImg1);
         this.load.image('bg2', bgImg2);
+        this.load.image('invisWall', invisWall);
+        this.load.image('spikes', spikes);
+        this.load.image('mainHelloWorld', mainHelloWorld);
+        this.load.image('mainHelloWorldBubble', mainHelloWorldBubble);
+        this.load.image('mainHelloWorldBubble2', mainHelloWorldBubble2);
+        this.load.image('mainHelloWorldBubble3', mainHelloWorldBubble3);
+        this.load.image('mainHelloWorldBubble4', mainHelloWorldBubble4);
+        this.load.image('mainHelloWorldBubble5', mainHelloWorldBubble5);
     }
       
     create ()
     {
-
         //  Set the camera and physics bounds
         this.cameras.main.setBounds(0, 0, 800, 1129 * 2);
         this.physics.world.setBounds(0, 0, 800, 1129 * 2);   
@@ -35,21 +50,51 @@ class Level extends Phaser.Scene
         // 1129 is the height of first bg image
         this.add.image(0, 1129, 'bg2').setOrigin(0);
 
+        this.invisWall = this.physics.add.staticGroup();
+        this.invisWall.create(0, 0, 'invisWall').setOrigin(0).refreshBody();
+        this.invisWall.create(0, 1129, 'invisWall').setOrigin(0).refreshBody();
+        
+        // Add platforms as their own physics group
         this.platforms = this.physics.add.staticGroup();
+        // Add spikes as their own physics group
+        this.spikes = this.physics.add.staticGroup();
+
+        //This is the deadly platform (for spikes)
+        this.spikes.create(450, 400, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(75, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(172, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(172 * 2, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(172 * 3, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(172 * 4, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
+
 
         //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        this.platforms.create(600, 500, 'ground');
-        this.platforms.create(50, 220, 'ground');
-        this.platforms.create(200, 2230, 'ground');
+        this.platforms.create(75, 207, 'mainHelloWorld').setOrigin(0).refreshBody();
+        this.platforms.create(475, 500, 'mainHelloWorldBubble').refreshBody();
+        this.platforms.create(75, 720, 'mainHelloWorldBubble2').setOrigin(0).refreshBody();
+        this.platforms.create(75, 1000, 'mainHelloWorldBubble3').setOrigin(0).refreshBody();
+        this.platforms.create(540, 1300, 'mainHelloWorldBubble4').refreshBody();
+        this.platforms.create(300, 1500, 'mainHelloWorldBubble5').refreshBody();
+        this.platforms.create(500, 1700, 'mainHelloWorldBubble5').refreshBody();
+        this.platforms.create(300, 1900, 'mainHelloWorldBubble5').refreshBody();
+        this.platforms.create(500, 2100, 'mainHelloWorldBubble5').refreshBody();
 
-        this.player = this.physics.add.sprite(10, 45, 'dude');
 
+
+        this.player = this.physics.add.sprite(100, 45, 'dude');
         // this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
 
         this.cameras.main.startFollow(this.player);
         
         this.physics.add.collider(this.player, this.platforms);
+        this.physics.add.collider(this.player, this.invisWall);
+
+        // Add collision event with player and spikes (restarts the scene on collision)
+        this.physics.add.collider(this.player, this.spikes, () =>  {
+            this.scene.restart();
+        });
+
 
         this.anims.create({
             key: 'left',
@@ -83,6 +128,7 @@ class Level extends Phaser.Scene
         this.playerController = new PlayerController(this.player);
         this.playerController.setState('idle');
 
+        /*
         let movingPlatform = this.physics.add.image(330, 600, 'ground').setScale(0.25)
         .setImmovable(true)
         .setVelocity(100, -100)
@@ -99,6 +145,7 @@ class Level extends Phaser.Scene
         });
 
         this.physics.add.collider(movingPlatform, this.player)
+        */
     }
 
     update() 
@@ -112,11 +159,11 @@ class Level extends Phaser.Scene
             this.playerController.setState('idle');
         }
         
-
         if (this.cursors.up.isDown && this.player.body.touching.down)
         {
             this.player.setVelocityY(-400);
         }
+        
     }
 }
 
