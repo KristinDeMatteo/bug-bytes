@@ -6,8 +6,13 @@ import skyImg from './assets/sky.png';
 import bgImg1 from './assets/level_1_bg_1.png';
 import bgImg2 from './assets/level_1_bg_2.png';
 import invisWall from './assets/leftBorder.png';
+import spikes from './assets/spikes.png';
 import mainHelloWorld from './assets/mainHelloWorld.png';
 import mainHelloWorldBubble from './assets/mainHelloWorldBubble.png';
+import mainHelloWorldBubble2 from './assets/mainHelloWorldBubble2.png';
+import mainHelloWorldBubble3 from './assets/mainHelloWorldBubble3.png';
+import mainHelloWorldBubble4 from './assets/mainHelloWorldBubble4.png';
+import mainHelloWorldBubble5 from './assets/mainHelloWorldBubble5.png';
 
 class Level extends Phaser.Scene
 {
@@ -24,8 +29,13 @@ class Level extends Phaser.Scene
         this.load.image('bg1', bgImg1);
         this.load.image('bg2', bgImg2);
         this.load.image('invisWall', invisWall);
+        this.load.image('spikes', spikes);
         this.load.image('mainHelloWorld', mainHelloWorld);
         this.load.image('mainHelloWorldBubble', mainHelloWorldBubble);
+        this.load.image('mainHelloWorldBubble2', mainHelloWorldBubble2);
+        this.load.image('mainHelloWorldBubble3', mainHelloWorldBubble3);
+        this.load.image('mainHelloWorldBubble4', mainHelloWorldBubble4);
+        this.load.image('mainHelloWorldBubble5', mainHelloWorldBubble5);
     }
       
     create ()
@@ -40,17 +50,34 @@ class Level extends Phaser.Scene
 
         this.invisWall = this.physics.add.staticGroup();
         this.invisWall.create(0, 0, 'invisWall').setOrigin(0).refreshBody();
+        this.invisWall.create(0, 1129, 'invisWall').setOrigin(0).refreshBody();
         
+        // Add platforms as their own physics group
         this.platforms = this.physics.add.staticGroup();
-        this.deadlyPlatform = this.physics.add.staticGroup();
+        // Add spikes as their own physics group
+        this.spikes = this.physics.add.staticGroup();
+
+        //This is the deadly platform (for spikes)
+        this.spikes.create(450, 400, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(75, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(172, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(172 * 2, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(172 * 3, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(172 * 4, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
+
 
         //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        //This is the deadly platform (for spikes)
-        this.platforms.create(75, 220, 'mainHelloWorld').setOrigin(0).refreshBody();
+        this.platforms.create(75, 207, 'mainHelloWorld').setOrigin(0).refreshBody();
         this.platforms.create(475, 500, 'mainHelloWorldBubble').refreshBody();
+        this.platforms.create(75, 720, 'mainHelloWorldBubble2').setOrigin(0).refreshBody();
+        this.platforms.create(75, 1000, 'mainHelloWorldBubble3').setOrigin(0).refreshBody();
+        this.platforms.create(540, 1300, 'mainHelloWorldBubble4').refreshBody();
+        this.platforms.create(300, 1500, 'mainHelloWorldBubble5').refreshBody();
+        this.platforms.create(500, 1700, 'mainHelloWorldBubble5').refreshBody();
+        this.platforms.create(300, 1900, 'mainHelloWorldBubble5').refreshBody();
+        this.platforms.create(500, 2100, 'mainHelloWorldBubble5').refreshBody();
 
-        
-        //this.platforms.create(750, 220, 'ground');
+
 
         this.player = this.physics.add.sprite(100, 45, 'dude');
         // this.player.setBounce(0.2);
@@ -61,7 +88,8 @@ class Level extends Phaser.Scene
         this.physics.add.collider(this.player, this.platforms);
         this.physics.add.collider(this.player, this.invisWall);
 
-        this.physics.add.collider(this.player, this.deadlyPlatform, function() {
+        // Add collision event with player and spikes (restarts the scene on collision)
+        this.physics.add.collider(this.player, this.spikes, () =>  {
             this.scene.restart();
         });
 
