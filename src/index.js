@@ -27,6 +27,7 @@ class Level extends Phaser.Scene
         this.load.image('sky', skyImg);
         this.load.image('ground', groundImg);
         this.load.spritesheet('dude', dudeImg, { frameWidth: 50, frameHeight: 50 });
+        this.load.spritesheet('dudeRev', dudeImgRev, { frameWidth: 50, frameHeight: 50 });
         this.load.image('bg1', bgImg1);
         this.load.image('bg2', bgImg2);
         this.load.image('invisWall', invisWall);
