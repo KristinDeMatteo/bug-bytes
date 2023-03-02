@@ -11,7 +11,7 @@ class Level extends Phaser.Scene
 {
     constructor ()
     {
-        super();
+        super({ key: "boot" });
     }
 
     preload ()
@@ -37,18 +37,33 @@ class Level extends Phaser.Scene
 
         this.platforms = this.physics.add.staticGroup();
 
+        this.deadlyPlatform = this.physics.add.staticGroup();
+
         //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        this.platforms.create(600, 500, 'ground');
-        this.platforms.create(50, 220, 'mainHelloWorld').setOrigin(0);
+
+
+        //This is the deadly platform (for spikes)
+        this.deadlyPlatform.create(600, 500, 'ground');
+
+
+
+        this.platforms.create(50, 220, 'mainHelloWorld').setOrigin(0).refreshBody();
+
+        
         //this.platforms.create(750, 220, 'ground');
 
-        this.player = this.physics.add.sprite(10, 45, 'dude');
+        this.player = this.physics.add.sprite(50, 45, 'dude');
         // this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
 
         this.cameras.main.startFollow(this.player);
         
         this.physics.add.collider(this.player, this.platforms);
+
+        this.physics.add.collider(this.player, this.deadlyPlatform, function() {
+            this.scene.restart();
+        });
+
 
         this.anims.create({
             key: 'left',
@@ -109,6 +124,9 @@ class Level extends Phaser.Scene
         {
             this.player.setVelocityY(-400);
         }
+
+
+        
     }
 }
 
