@@ -72,6 +72,23 @@ class Level extends Phaser.Scene
 
         this.playerController = new PlayerController(this.player);
         this.playerController.setState('idle');
+
+        let movingPlatform = this.physics.add.image(330, 600, 'ground').setScale(0.25)
+        .setImmovable(true)
+        .setVelocity(100, -100)
+
+        movingPlatform.body.setAllowGravity(false)
+
+        this.tweens.timeline({
+        targets: movingPlatform.body.velocity,
+        loop: -1,
+        tweens: [
+            { x:    0, y: -200, duration: 2000, ease: 'Stepped' },
+            { x:    0, y: 200, duration: 2000, ease: 'Stepped' },
+        ]
+        });
+
+        this.physics.add.collider(movingPlatform, this.player)
     }
 
     update() 
