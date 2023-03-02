@@ -16,7 +16,6 @@ export default class PlayerController
             accelTime: 300, // milliseconds to max speed
             decelTime: 200, // milliseconds to stop from max speed
             maxSpeed: 600,
-            ease: 'Circular.easeOut',
         }
     }
 

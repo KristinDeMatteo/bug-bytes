@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import PlayerController from './PlayerController';
-import dudeImg from './assets/dude.png';
+import dudeImg from './assets/femaleSpriteSheet2.png';
+import dudeImgRev from './assets/femaleSpriteSheet2Rev.png';
 import groundImg from './assets/platform.png';
 import skyImg from './assets/sky.png';
 import bgImg1 from './assets/level_1_bg_1.png';
@@ -25,7 +26,7 @@ class Level extends Phaser.Scene
     {
         this.load.image('sky', skyImg);
         this.load.image('ground', groundImg);
-        this.load.spritesheet('dude', dudeImg, { frameWidth: 32, frameHeight: 48 });
+        this.load.spritesheet('dude', dudeImg, { frameWidth: 50, frameHeight: 50 });
         this.load.image('bg1', bgImg1);
         this.load.image('bg2', bgImg2);
         this.load.image('invisWall', invisWall);
@@ -96,20 +97,27 @@ class Level extends Phaser.Scene
 
         this.anims.create({
             key: 'left',
-            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+            frames: this.anims.generateFrameNumbers('dudeRev', { start: 16, end: 11 }),
             frameRate: 10,
             repeat: -1
         });
 
         this.anims.create({
             key: 'turn',
-            frames: [ { key: 'dude', frame: 4 } ],
-            frameRate: 20
+            frames: [ { key: 'dude', frame: 5 } ],
+            frameRate: 10
+        });
+        
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('dude', { start: 11, end: 16 }),
+            frameRate: 10,
+            repeat: -1
         });
 
         this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+            key: 'attack',
+            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 10 }),
             frameRate: 10,
             repeat: -1
         });
