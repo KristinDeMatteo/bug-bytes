@@ -5,7 +5,7 @@ export default class MoveLeftState
 		this.player = player;
 	}
 
-	enter({maxSpeed, accelTime})
+	enter({maxSpeed, accelTime, ease})
 	{
 		this.player.anims.play('left');
 
@@ -15,7 +15,7 @@ export default class MoveLeftState
             targets: this.player.body.velocity,
             props: { x: { value: -maxSpeed} },
             duration: accelTime * speedPercent,
-            ease: 'Circular.easeOut',
+            ease: ease,
             repeat: 0,
             yoyo: false,
         });
