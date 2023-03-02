@@ -38,7 +38,7 @@ class Level extends Phaser.Scene
         //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
         this.platforms.create(600, 500, 'ground');
         this.platforms.create(50, 220, 'ground');
-        //this.platforms.create(750, 220, 'ground');
+        this.platforms.create(200, 2230, 'ground');
 
         this.player = this.physics.add.sprite(10, 45, 'dude');
         // this.player.setBounce(0.2);
