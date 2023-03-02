@@ -1,8 +1,11 @@
 import Phaser from 'phaser';
 import PlayerController from './PlayerController';
-import dudeImg from './assets/dude.png';
+import dudeImg from './assets/femaleSpriteSheet2.png';
+import dudeImgRev from './assets/femaleSpriteSheet2Rev.png';
 import groundImg from './assets/platform.png';
 import skyImg from './assets/sky.png';
+import bgImg1 from './assets/level_1_bg_1.png';
+import bgImg2 from './assets/level_1_bg_2.png';
 
 class Level extends Phaser.Scene
 {
@@ -15,42 +18,62 @@ class Level extends Phaser.Scene
     {
         this.load.image('sky', skyImg);
         this.load.image('ground', groundImg);
-        this.load.spritesheet('dude', dudeImg, { frameWidth: 32, frameHeight: 48 });
+        this.load.spritesheet('dude', dudeImg, { frameWidth: 50, frameHeight: 50 });
+        this.load.spritesheet('dudeRev', dudeImgRev, { frameWidth: 50, frameHeight: 50 });
+        this.load.image('bg1', bgImg1);
+        this.load.image('bg2', bgImg2);
     }
       
     create ()
     {
-        this.add.image(400, 300, 'sky');
+
+        //  Set the camera and physics bounds
+        this.cameras.main.setBounds(0, 0, 800, 1129 * 2);
+        this.physics.world.setBounds(0, 0, 800, 1129 * 2);   
+        
+        this.add.image(0, 0, 'bg1').setOrigin(0);
+        // 1129 is the height of first bg image
+        this.add.image(0, 1129, 'bg2').setOrigin(0);
 
         this.platforms = this.physics.add.staticGroup();
 
-        this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        this.platforms.create(600, 400, 'ground');
-        this.platforms.create(50, 250, 'ground');
-        this.platforms.create(750, 220, 'ground');
+        //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+        this.platforms.create(600, 500, 'ground');
+        this.platforms.create(50, 220, 'ground');
+        this.platforms.create(200, 2230, 'ground');
 
         this.player = this.physics.add.sprite(10, 45, 'dude');
+
         // this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
+
+        this.cameras.main.startFollow(this.player);
         
         this.physics.add.collider(this.player, this.platforms);
 
         this.anims.create({
             key: 'left',
-            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+            frames: this.anims.generateFrameNumbers('dudeRev', { start: 16, end: 11 }),
             frameRate: 10,
             repeat: -1
         });
 
         this.anims.create({
             key: 'turn',
-            frames: [ { key: 'dude', frame: 4 } ],
-            frameRate: 20
+            frames: [ { key: 'dude', frame: 5 } ],
+            frameRate: 10
+        });
+        
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('dude', { start: 11, end: 16 }),
+            frameRate: 10,
+            repeat: -1
         });
 
         this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+            key: 'attack',
+            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 10 }),
             frameRate: 10,
             repeat: -1
         });
@@ -59,6 +82,23 @@ class Level extends Phaser.Scene
 
         this.playerController = new PlayerController(this.player);
         this.playerController.setState('idle');
+
+        let movingPlatform = this.physics.add.image(330, 600, 'ground').setScale(0.25)
+        .setImmovable(true)
+        .setVelocity(100, -100)
+
+        movingPlatform.body.setAllowGravity(false)
+
+        this.tweens.timeline({
+        targets: movingPlatform.body.velocity,
+        loop: -1,
+        tweens: [
+            { x:    0, y: -200, duration: 2000, ease: 'Stepped' },
+            { x:    0, y: 200, duration: 2000, ease: 'Stepped' },
+        ]
+        });
+
+        this.physics.add.collider(movingPlatform, this.player)
     }
 
     update() 
