@@ -68,13 +68,12 @@ class Level extends Phaser.Scene
         this.spikes.create(172 * 4, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
 
 
-        //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
         this.platforms.create(75, 207, 'mainHelloWorld').setOrigin(0).refreshBody();
         this.platforms.create(475, 500, 'mainHelloWorldBubble').refreshBody();
         this.platforms.create(75, 720, 'mainHelloWorldBubble2').setOrigin(0).refreshBody();
         this.platforms.create(75, 1000, 'mainHelloWorldBubble3').setOrigin(0).refreshBody();
         this.platforms.create(540, 1300, 'mainHelloWorldBubble4').refreshBody();
-        this.platforms.create(300, 1500, 'mainHelloWorldBubble5').refreshBody();
+        //this.platforms.create(300, 1500, 'mainHelloWorldBubble5').refreshBody();
         this.platforms.create(500, 1700, 'mainHelloWorldBubble5').refreshBody();
         this.platforms.create(300, 1900, 'mainHelloWorldBubble5').refreshBody();
         this.platforms.create(500, 2100, 'mainHelloWorldBubble5').refreshBody();
@@ -128,8 +127,7 @@ class Level extends Phaser.Scene
         this.playerController = new PlayerController(this.player);
         this.playerController.setState('idle');
 
-        /*
-        let movingPlatform = this.physics.add.image(330, 600, 'ground').setScale(0.25)
+        let movingPlatform = this.physics.add.image(300, 1500, 'mainHelloWorldBubble5')
         .setImmovable(true)
         .setVelocity(100, -100)
 
@@ -139,13 +137,12 @@ class Level extends Phaser.Scene
         targets: movingPlatform.body.velocity,
         loop: -1,
         tweens: [
-            { x:    0, y: -200, duration: 2000, ease: 'Stepped' },
-            { x:    0, y: 200, duration: 2000, ease: 'Stepped' },
+            { x:    150, y: 0, duration: 2000, ease: 'Stepped' },
+            { x:    -150, y: 0, duration: 2000, ease: 'Stepped' },
         ]
         });
 
         this.physics.add.collider(movingPlatform, this.player)
-        */
     }
 
     update() 
