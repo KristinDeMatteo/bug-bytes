@@ -5,7 +5,9 @@ import groundImg from './assets/platform.png';
 import skyImg from './assets/sky.png';
 import bgImg1 from './assets/level_1_bg_1.png';
 import bgImg2 from './assets/level_1_bg_2.png';
+import leftBorder from './assets/leftBorder.png';
 import mainHelloWorld from './assets/mainHelloWorld.png';
+import mainHelloWorldBubble from './assets/mainHelloWorldBubble.png';
 
 class Level extends Phaser.Scene
 {
@@ -22,6 +24,8 @@ class Level extends Phaser.Scene
         this.load.image('bg1', bgImg1);
         this.load.image('bg2', bgImg2);
         this.load.image('mainHelloWorld', mainHelloWorld);
+        this.load.image('mainHelloWorldBubble', mainHelloWorldBubble);
+        this.load.image('leftBorder', leftBorder);
     }
       
     create ()
@@ -35,20 +39,25 @@ class Level extends Phaser.Scene
         // 1129 is the height of first bg image
         this.add.image(0, 1129, 'bg2').setOrigin(0);
 
+        this.invisWall = this.physics.add.staticGroup();
+        this.invisWall.create(0, 0, 'leftBorder').setOrigin(0).refreshBody();
+        
+
         this.platforms = this.physics.add.staticGroup();
 
         //this.platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        this.platforms.create(600, 500, 'ground');
-        this.platforms.create(50, 220, 'mainHelloWorld').setOrigin(0);
+        this.platforms.create(75, 220, 'mainHelloWorld').setOrigin(0).refreshBody();
+        this.platforms.create(475, 500, 'mainHelloWorldBubble').refreshBody();
         //this.platforms.create(750, 220, 'ground');
 
-        this.player = this.physics.add.sprite(10, 45, 'dude');
+        this.player = this.physics.add.sprite(100, 45, 'dude');
         // this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
 
         this.cameras.main.startFollow(this.player);
         
         this.physics.add.collider(this.player, this.platforms);
+        this.physics.add.collider(this.player, this.invisWall);
 
         this.anims.create({
             key: 'left',
@@ -75,6 +84,7 @@ class Level extends Phaser.Scene
         this.playerController = new PlayerController(this.player);
         this.playerController.setState('idle');
 
+        /*
         let movingPlatform = this.physics.add.image(330, 600, 'ground').setScale(0.25)
         .setImmovable(true)
         .setVelocity(100, -100)
@@ -91,6 +101,7 @@ class Level extends Phaser.Scene
         });
 
         this.physics.add.collider(movingPlatform, this.player)
+        */
     }
 
     update() 
