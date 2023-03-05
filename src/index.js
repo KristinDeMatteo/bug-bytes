@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import PlayerController from './PlayerController';
-import dudeImg from './assets/femaleSpriteSheet2.png';
-import dudeImgRev from './assets/femaleSpriteSheet2Rev.png';
+import dudeImg from './assets/femaleSpriteSheet4.png';
+import dudeImgRev from './assets/femaleSpriteSheet4Rev.png';
+import enemyImg from './assets/bugBytesV2.png';
+import enemyImgRev from './assets/bugBytesV2Rev.png';
 import groundImg from './assets/platform.png';
 import skyImg from './assets/sky.png';
 import bgImg1 from './assets/level_1_bg_1.png';
@@ -26,8 +28,10 @@ class Level extends Phaser.Scene
     {
         this.load.image('sky', skyImg);
         this.load.image('ground', groundImg);
-        this.load.spritesheet('dude', dudeImg, { frameWidth: 50, frameHeight: 50 });
-        this.load.spritesheet('dudeRev', dudeImgRev, { frameWidth: 50, frameHeight: 50 });
+        this.load.spritesheet('dude', dudeImg, { frameWidth: 75, frameHeight: 75 });
+        this.load.spritesheet('dudeRev', dudeImgRev, { frameWidth: 75, frameHeight: 75 });
+        this.load.spritesheet('enemy', enemyImg, { frameWidth: 80, frameHeight: 80 });
+        this.load.spritesheet('enemyRev', enemyImgRev, { frameWidth: 80, frameHeight: 80 });
         this.load.image('bg1', bgImg1);
         this.load.image('bg2', bgImg2);
         this.load.image('invisWall', invisWall);
@@ -78,9 +82,8 @@ class Level extends Phaser.Scene
         this.platforms.create(300, 1900, 'mainHelloWorldBubble5').refreshBody();
         this.platforms.create(500, 2100, 'mainHelloWorldBubble5').refreshBody();
 
-
-
-        this.player = this.physics.add.sprite(100, 45, 'dude');
+        this.player = this.physics.add.sprite(100, 100, 'dude');
+        this.player.setSize(50, 75, true);
         // this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
 
@@ -93,7 +96,6 @@ class Level extends Phaser.Scene
         this.physics.add.collider(this.player, this.spikes, () =>  {
             this.scene.restart();
         });
-
 
         this.anims.create({
             key: 'left',
@@ -126,6 +128,33 @@ class Level extends Phaser.Scene
 
         this.playerController = new PlayerController(this.player);
         this.playerController.setState('idle');
+
+        // enemy controls
+        let enemy1 = this.physics.add.sprite(100, 100, 'enemy').setVelocity(100, -100);
+        enemy1.setSize(100, 55, true);
+        this.physics.add.collider(enemy1, this.platforms);
+        this.tweens.timeline({
+            targets: enemy1.body.velocity,
+            loop: -1,
+            tweens: [
+                { x: 150, duration: 2000, ease: 'Stepped' },
+                { x: -150, duration: 2000, ease: 'Stepped'}
+            ]
+        });
+
+        this.enemy1.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('enemyRev', { start: 0, end: 7}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.enemy1.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('enemy', { start: 0, end: 7}),
+            frameRate: 10,
+            repeat: -1
+        });
 
         let movingPlatform = this.physics.add.image(300, 1500, 'mainHelloWorldBubble5')
         .setImmovable(true)
@@ -160,7 +189,13 @@ class Level extends Phaser.Scene
         {
             this.player.setVelocityY(-400);
         }
-        
+
+        if (this.enemy1.body.x < 0) {
+            this.enemy1.anims.play('left');
+        } else if (this.enemy1.body.x > 0) {
+            this.enemy1.anims.play('right');
+          }
+
     }
 }
 
