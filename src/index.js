@@ -8,6 +8,7 @@ import bgImg1 from './assets/level_1_bg_1.png';
 import bgImg2 from './assets/level_1_bg_2.png';
 import invisWall from './assets/leftBorder.png';
 import spikes from './assets/spikes.png';
+import semicolon from './assets/semicolon.png';
 import mainHelloWorld from './assets/mainHelloWorld.png';
 import mainHelloWorldBubble from './assets/mainHelloWorldBubble.png';
 import mainHelloWorldBubble2 from './assets/mainHelloWorldBubble2.png';
@@ -38,6 +39,7 @@ class Level extends Phaser.Scene
         this.load.image('mainHelloWorldBubble3', mainHelloWorldBubble3);
         this.load.image('mainHelloWorldBubble4', mainHelloWorldBubble4);
         this.load.image('mainHelloWorldBubble5', mainHelloWorldBubble5);
+        this.load.image('projectile', semicolon);
     }
       
     create ()
@@ -77,8 +79,6 @@ class Level extends Phaser.Scene
         this.platforms.create(500, 1700, 'mainHelloWorldBubble5').refreshBody();
         this.platforms.create(300, 1900, 'mainHelloWorldBubble5').refreshBody();
         this.platforms.create(500, 2100, 'mainHelloWorldBubble5').refreshBody();
-
-
 
         this.player = this.physics.add.sprite(100, 45, 'dude');
         // this.player.setBounce(0.2);
@@ -143,6 +143,28 @@ class Level extends Phaser.Scene
         });
 
         this.physics.add.collider(movingPlatform, this.player)
+
+        // Add the player's projectile as a sprite and make it invisible
+        this.projectile = this.physics.add.sprite(0, 0, 'projectile').setOrigin(0.5).setVisible(false);
+
+        // Allow projectile to not be affected by gravity
+        this.projectile.body.setAllowGravity(false)
+        
+        // Add collision events between the projectile and the spikes
+        this.physics.add.collider(this.projectile, this.spikes, () => {
+            this.projectile.setVisible(false);
+        });
+
+        // Add collision events between the projectile and the platforms
+        this.physics.add.collider(this.projectile, this.platforms, () => {
+            this.projectile.setVisible(false);
+        });
+
+        // Add collision events between the projectile and the enemies
+        this.physics.add.overlap(this.projectile, this.enemies, (projectile, enemy) => {
+            enemy.destroy();
+            projectile.setVisible(false);
+        });
     }
 
     update() 
@@ -160,7 +182,18 @@ class Level extends Phaser.Scene
         {
             this.player.setVelocityY(-400);
         }
-        
+        // Long-range attack
+        if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
+            this.projectile.setPosition(this.player.x, this.player.y);
+            this.projectile.setVisible(true);
+            // Set the velocity of the projectile based on the direction the player is facing
+            if (this.cursors.left.isDown) {
+                this.projectile.setVelocityX(-400); // Move to the left
+            } else {
+                this.projectile.setVelocityX(400); // Move to the right
+            }
+            this.projectile.setVelocityY(0); // Move straight horizontally
+        }
     }
 }
 
