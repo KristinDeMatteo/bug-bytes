@@ -3,6 +3,7 @@ import PlayerController from './PlayerController';
 import dudeImg from './assets/femaleSpriteSheet2.png';
 import dudeImgRev from './assets/femaleSpriteSheet2Rev.png';
 import groundImg from './assets/platform.png';
+import menubackground from './assets/menu.png';
 import skyImg from './assets/sky.png';
 import bgImg1 from './assets/level_1_bg_1.png';
 import bgImg2 from './assets/level_1_bg_2.png';
@@ -15,12 +16,13 @@ import mainHelloWorldBubble2 from './assets/mainHelloWorldBubble2.png';
 import mainHelloWorldBubble3 from './assets/mainHelloWorldBubble3.png';
 import mainHelloWorldBubble4 from './assets/mainHelloWorldBubble4.png';
 import mainHelloWorldBubble5 from './assets/mainHelloWorldBubble5.png';
+import playButton from './assets/strt.png';
 
 class Level extends Phaser.Scene
 {
-    constructor ()
+    constructor()
     {
-        super();
+        super("Level");
     }
 
     preload ()
@@ -197,20 +199,57 @@ class Level extends Phaser.Scene
     }
 }
 
+class MainMenu extends Phaser.Scene 
+{
+    constructor()
+    {
+        super("MainMenu");
+    }
+
+    preload()
+    {
+        this.load.image('play-button', playButton);
+        this.load.image('menu-back', menubackground);
+    }
+
+
+    init(data)
+    {
+        console.log(data);
+        console.log("I GOT IT");
+    }
+
+    onObjectClicked()
+    {
+        this.scene.start('Level');
+    }
+
+    create()
+    {
+        this.add.image(0, 0, 'menu-back').setOrigin(0);
+
+        let playButton = this.add.image(280, this.game.renderer.height / 2,'play-button').setOrigin(0)
+        playButton.setInteractive();
+
+        this.input.on('gameobjectdown', this.onObjectClicked, this)
+    }
+}
+
 const config = {
-    type: Phaser.AUTO,
-    parent: 'phaser-example',
-    width: 800,
-    height: 600,
-    scene: Level,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 800 },
-            debug: false
-        }
-    },
-};
+	type: Phaser.AUTO,
+	parent: 'phaser-example',
+	width: 800,
+	height: 600,
+	scene: [MainMenu, Level],
+	physics: {
+		default: 'arcade',
+		arcade: {
+			gravity: { y: 800 },
+			debug: false
+		}
+	},
+  };
+
 
 const game = new Phaser.Game(config);
 
