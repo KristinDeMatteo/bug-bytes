@@ -78,7 +78,7 @@ class Level extends Phaser.Scene {
 
         this.winPlatform.create(100, 2175, 'winLine').setOrigin(0).refreshBody();
 
-        this.player = this.physics.add.sprite(500, 1600, 'dude');
+        this.player = this.physics.add.sprite(90, 175, 'dude');
         this.player.setCollideWorldBounds(true);
 
         this.cameras.main.startFollow(this.player);
@@ -256,7 +256,7 @@ const config = {
 	parent: 'phaser-example',
 	width: 800,
 	height: 600,
-	scene: [Level, MainMenu, WinScene ],
+	scene: [MainMenu, Level, WinScene],
 	physics: {
 		default: 'arcade',
 		arcade: {
