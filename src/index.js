@@ -113,10 +113,9 @@ class Level extends Phaser.Scene {
         this.platforms.create(75, 207, 'mainHelloWorld').setOrigin(0).refreshBody();
         this.platforms.create(475, 550, 'mainHelloWorldBubble').refreshBody();
         this.platforms.create(75, 720, 'mainHelloWorldBubble2').setOrigin(0).refreshBody();
-        this.platforms.create(75, 1000, 'mainHelloWorldBubble3').setOrigin(0).refreshBody();
+        this.platforms.create(150, 1050, 'mainHelloWorldBubble3').setOrigin(0).refreshBody();
         
-        this.winPlatform.create(100, 2175, 'winLine').setOrigin(0).refreshBody();
-
+        this.winPlatform.create(500, 2175, 'winLine').setOrigin(0).refreshBody();
         this.player = this.physics.add.sprite(100, 170, 'dude');
         this.player.setSize(50, 75, true);
         this.player.setCollideWorldBounds(true);
@@ -144,6 +143,10 @@ class Level extends Phaser.Scene {
             this.HealthBar.update(this.player.health);
             // If the player's health hits 0, scene restarts
             if (this.player.health <= 0) {this.scene.restart();}
+        });
+
+        this.physics.add.collider(this.player, this.winPlatform, () =>  {
+            this.scene.start('WinScene');
         });
 
         this.anims.create({
@@ -178,43 +181,10 @@ class Level extends Phaser.Scene {
         this.playerController = new PlayerController(this.player);
         this.playerController.setState('idle');
 
-        // enemy controls
-        let enemy1 = this.physics.add.sprite(75, 700, 'enemy').setVelocity(100, -100);
-        enemy1.setSize(100, 55, true);
-        this.physics.add.collider(enemy1, this.platforms);
-        this.tweens.timeline({
-            targets: enemy1.body.velocity,
-            loop: -1,
-            tweens: [
-                { x: 150, duration: 2000, ease: 'Stepped' },
-                { x: -150, duration: 2000, ease: 'Stepped'}
-            ]
-        });
-
-        // Add collision event with player and the enemy
-        this.physics.add.collider(this.player, enemy1, () =>  {
-            //return if player is immune
-            if (this.player.immune) {return;}
-            
-            // Make player immune for 2 seconds
-            this.player.immune = true;
-            setTimeout(() => this.player.immune = false, 2000);
-
-
-            // TODO: This is optional
-            // Detroy enemy after a collision
-            enemy1.destroy();
-
-            this.player.health--;
-            this.HealthBar.update(this.player.health);
-            if (this.player.health <= 0) {this.scene.restart();}
-        });
-        
         this.createMovingPlatforms()
 
         // Add the player's projectile as a sprite and make it invisible
         this.projectile = this.physics.add.sprite(0, 0, 'projectile').setOrigin(0.5).setVisible(false);
-
         // Allow projectile to not be affected by gravity
         this.projectile.body.setAllowGravity(false)
         
@@ -227,12 +197,7 @@ class Level extends Phaser.Scene {
         this.physics.add.collider(this.projectile, this.platforms, () => {
             this.projectile.setVisible(false);
         });
-
-        // Add collision events between the projectile and the enemies
-        this.physics.add.collider(this.projectile, this.enemy1, (projectile, enemy1) => {
-            this.enemy1.destroy();
-            this.projectile.setVisible(false);
-        });
+        this.createEnemies()
     }
 
     update() {
@@ -265,7 +230,7 @@ class Level extends Phaser.Scene {
 
     createMovingPlatforms() {
         let movingPlatform = this.physics.add.image(300, 1500, 'mainHelloWorldBubble5')
-        let movingPlatform2 = this.physics.add.image(540, 1300, 'mainHelloWorldBubble5')
+        let movingPlatform2 = this.physics.add.image(200, 1300, 'mainHelloWorldBubble5')
         let movingPlatform3 = this.physics.add.image(500, 1700, 'mainHelloWorldBubble5')
         let movingPlatform4 = this.physics.add.image(300, 1900, 'mainHelloWorldBubble5')
         let movingPlatform5 = this.physics.add.image(500, 2100, 'mainHelloWorldBubble5')
@@ -285,6 +250,52 @@ class Level extends Phaser.Scene {
             });
             this.physics.add.collider(platform, this.player)
         })
+    }
+
+    createEnemies() {
+    // enemy controls
+    let enemy1 = this.physics.add.sprite(200, 700, 'enemy').setVelocity(100, -100);
+    let enemy2 = this.physics.add.sprite(340, 960, 'enemy').setVelocity(100, -100);
+    let enemy3 = this.physics.add.sprite(180, 460, 'enemy').setVelocity(100, -100);    
+    
+    this.enemyList = [enemy1, enemy2, enemy3]
+    this.enemyList.forEach(enemy => {
+        enemy.setSize(3, 55, true);
+        this.physics.add.collider(enemy, this.platforms);
+        this.tweens.timeline({
+            targets: enemy.body.velocity,
+            loop: -1,
+            tweens: [
+                { x: 150, duration: 2000, ease: 'Stepped' },
+                { x: -150, duration: 2000, ease: 'Stepped'}
+            ]
+        });
+
+        // Add collision event with player and the enemy
+        this.physics.add.collider(this.player, enemy, () =>  {
+            //return if player is immune
+            if (this.player.immune) {return;}
+            
+            // Make player immune for 2 seconds
+            this.player.immune = true;
+            setTimeout(() => this.player.immune = false, 2000);
+
+            // TODO: This is optional
+            // Detroy enemy after a collision
+            enemy.destroy();
+
+            this.player.health--;
+            this.HealthBar.update(this.player.health);
+            if (this.player.health <= 0) {this.scene.restart();}
+        });
+        // Add collision events between the projectile and the enemies
+        this.physics.add.collider(this.projectile, enemy, () => {
+            enemy.destroy();
+            this.projectile.setVisible(false);
+        });  
+    })
+    
+     
     }
 }
 
@@ -337,7 +348,7 @@ const config = {
 	parent: 'phaser-example',
 	width: 800,
 	height: 600,
-	scene: [Level, MainMenu, WinScene],
+	scene: [MainMenu, Level, WinScene],
 	physics: {
 		default: 'arcade',
 		arcade: {
