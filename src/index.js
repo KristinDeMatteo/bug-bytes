@@ -4,6 +4,7 @@ import dudeImg from './assets/femaleSpriteSheet2.png';
 import dudeImgRev from './assets/femaleSpriteSheet2Rev.png';
 import groundImg from './assets/platform.png';
 import menubackground from './assets/menu.png';
+import winScreen from './assets/winScreen.png';
 import skyImg from './assets/sky.png';
 import bgImg1 from './assets/level_1_bg_1.png';
 import bgImg2 from './assets/level_1_bg_2.png';
@@ -17,16 +18,14 @@ import mainHelloWorldBubble3 from './assets/mainHelloWorldBubble3.png';
 import mainHelloWorldBubble4 from './assets/mainHelloWorldBubble4.png';
 import mainHelloWorldBubble5 from './assets/mainHelloWorldBubble5.png';
 import playButton from './assets/strt.png';
+import winLine from './assets/winLine.png';
 
-class Level extends Phaser.Scene
-{
-    constructor()
-    {
+class Level extends Phaser.Scene {
+    constructor() {
         super("Level");
     }
 
-    preload ()
-    {
+    preload () {
         this.load.image('sky', skyImg);
         this.load.image('ground', groundImg);
         this.load.spritesheet('dude', dudeImg, { frameWidth: 50, frameHeight: 50 });
@@ -42,10 +41,10 @@ class Level extends Phaser.Scene
         this.load.image('mainHelloWorldBubble4', mainHelloWorldBubble4);
         this.load.image('mainHelloWorldBubble5', mainHelloWorldBubble5);
         this.load.image('projectile', semicolon);
+        this.load.image('winLine', winLine);
     }
       
-    create ()
-    {
+    create () {
         //  Set the camera and physics bounds
         this.cameras.main.setBounds(0, 0, 800, 1129 * 2);
         this.physics.world.setBounds(0, 0, 800, 1129 * 2);   
@@ -60,9 +59,10 @@ class Level extends Phaser.Scene
         
         // Add platforms as their own physics group
         this.platforms = this.physics.add.staticGroup();
+        this.winPlatform = this.physics.add.staticGroup();
         // Add spikes as their own physics group
         this.spikes = this.physics.add.staticGroup();
-
+        
         //This is the deadly platform (for spikes)
         this.spikes.create(450, 400, 'spikes').setOrigin(0).refreshBody();
         this.spikes.create(75, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
@@ -71,19 +71,14 @@ class Level extends Phaser.Scene
         this.spikes.create(172 * 3, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
         this.spikes.create(172 * 4, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
 
-
         this.platforms.create(75, 207, 'mainHelloWorld').setOrigin(0).refreshBody();
         this.platforms.create(475, 500, 'mainHelloWorldBubble').refreshBody();
         this.platforms.create(75, 720, 'mainHelloWorldBubble2').setOrigin(0).refreshBody();
         this.platforms.create(75, 1000, 'mainHelloWorldBubble3').setOrigin(0).refreshBody();
-        this.platforms.create(540, 1300, 'mainHelloWorldBubble4').refreshBody();
-        //this.platforms.create(300, 1500, 'mainHelloWorldBubble5').refreshBody();
-        this.platforms.create(500, 1700, 'mainHelloWorldBubble5').refreshBody();
-        this.platforms.create(300, 1900, 'mainHelloWorldBubble5').refreshBody();
-        this.platforms.create(500, 2100, 'mainHelloWorldBubble5').refreshBody();
 
-        this.player = this.physics.add.sprite(100, 45, 'dude');
-        // this.player.setBounce(0.2);
+        this.winPlatform.create(100, 2175, 'winLine').setOrigin(0).refreshBody();
+
+        this.player = this.physics.add.sprite(500, 1600, 'dude');
         this.player.setCollideWorldBounds(true);
 
         this.cameras.main.startFollow(this.player);
@@ -94,6 +89,10 @@ class Level extends Phaser.Scene
         // Add collision event with player and spikes (restarts the scene on collision)
         this.physics.add.collider(this.player, this.spikes, () =>  {
             this.scene.restart();
+        });
+
+        this.physics.add.collider(this.player, this.winPlatform, () =>  {
+            this.scene.start('WinScene');
         });
 
 
@@ -129,22 +128,7 @@ class Level extends Phaser.Scene
         this.playerController = new PlayerController(this.player);
         this.playerController.setState('idle');
 
-        let movingPlatform = this.physics.add.image(300, 1500, 'mainHelloWorldBubble5')
-        .setImmovable(true)
-        .setVelocity(100, -100)
-
-        movingPlatform.body.setAllowGravity(false)
-
-        this.tweens.timeline({
-        targets: movingPlatform.body.velocity,
-        loop: -1,
-        tweens: [
-            { x:    150, y: 0, duration: 2000, ease: 'Stepped' },
-            { x:    -150, y: 0, duration: 2000, ease: 'Stepped' },
-        ]
-        });
-
-        this.physics.add.collider(movingPlatform, this.player)
+        this.createMovingPlatforms()
 
         // Add the player's projectile as a sprite and make it invisible
         this.projectile = this.physics.add.sprite(0, 0, 'projectile').setOrigin(0.5).setVisible(false);
@@ -169,8 +153,7 @@ class Level extends Phaser.Scene
         });
     }
 
-    update() 
-    {
+    update() {
         if (this.cursors.left.isDown) {
             this.playerController.setState('moveLeft');
         }
@@ -197,40 +180,73 @@ class Level extends Phaser.Scene
             this.projectile.setVelocityY(0); // Move straight horizontally
         }
     }
+
+    createMovingPlatforms() {
+        let movingPlatform = this.physics.add.image(300, 1500, 'mainHelloWorldBubble5')
+        let movingPlatform2 = this.physics.add.image(540, 1300, 'mainHelloWorldBubble5')
+        let movingPlatform3 = this.physics.add.image(500, 1700, 'mainHelloWorldBubble5')
+        let movingPlatform4 = this.physics.add.image(300, 1900, 'mainHelloWorldBubble5')
+        let movingPlatform5 = this.physics.add.image(500, 2100, 'mainHelloWorldBubble5')
+
+        const movingPlatfromArray = [movingPlatform, movingPlatform2, movingPlatform3, movingPlatform4, movingPlatform5]
+        movingPlatfromArray.forEach(platform => {
+            platform.setImmovable(true).setVelocity(100, -100)
+            platform.body.setAllowGravity(false)
+            let modifier = Math.random() * 500
+            let platformTween = this.tweens.timeline({
+                targets: platform.body.velocity,
+                loop: -1,
+                tweens: [
+                    { x:    150, y: 0, duration: 2000 - modifier, ease: 'Stepped' },
+                    { x:    -150, y: 0, duration: 2000 - modifier, ease: 'Stepped' },
+                ]
+            });
+
+            this.physics.add.collider(platform, this.player)
+        })
+    }
 }
 
-class MainMenu extends Phaser.Scene 
-{
-    constructor()
-    {
+class MainMenu extends Phaser.Scene {
+    constructor() {
         super("MainMenu");
     }
 
-    preload()
-    {
+    preload() {
         this.load.image('play-button', playButton);
         this.load.image('menu-back', menubackground);
     }
 
-
-    init(data)
-    {
-        console.log(data);
-        console.log("I GOT IT");
-    }
-
-    onObjectClicked()
-    {
+    onObjectClicked() {
         this.scene.start('Level');
     }
 
-    create()
-    {
+    create() {
         this.add.image(0, 0, 'menu-back').setOrigin(0);
-
         let playButton = this.add.image(280, this.game.renderer.height / 2,'play-button').setOrigin(0)
         playButton.setInteractive();
+        this.input.on('gameobjectdown', this.onObjectClicked, this)
+    }
+}
 
+class WinScene extends Phaser.Scene {
+    constructor() {
+        super("WinScene");
+    }
+
+    preload() {
+        this.load.image('play-button', playButton);
+        this.load.image('winScreen', winScreen);
+    }
+
+    onObjectClicked() {
+        this.scene.start('Level');
+    }
+
+    create() {
+        this.add.image(0, 0, 'winScreen').setOrigin(0);
+        let playButton = this.add.image(310, this.game.renderer.height / 2,'play-button').setOrigin(0)
+        playButton.setInteractive();
         this.input.on('gameobjectdown', this.onObjectClicked, this)
     }
 }
@@ -240,7 +256,7 @@ const config = {
 	parent: 'phaser-example',
 	width: 800,
 	height: 600,
-	scene: [MainMenu, Level],
+	scene: [Level, MainMenu, WinScene ],
 	physics: {
 		default: 'arcade',
 		arcade: {
