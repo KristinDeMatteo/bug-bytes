@@ -119,7 +119,7 @@ class Level extends Phaser.Scene
             key: 'attack',
             frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 10 }),
             frameRate: 10,
-            repeat: -1
+            repeat: 0
         });
 
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -177,13 +177,13 @@ class Level extends Phaser.Scene
         } else {
             this.playerController.setState('idle');
         }
-        
         if (this.cursors.up.isDown && this.player.body.touching.down)
         {
             this.player.setVelocityY(-400);
         }
         // Long-range attack
-        if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
+        if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {   
+            this.player.anims.play('attack', true);
             this.projectile.setPosition(this.player.x, this.player.y);
             this.projectile.setVisible(true);
             // Set the velocity of the projectile based on the direction the player is facing
