@@ -121,7 +121,7 @@ class Level extends Phaser.Scene
             key: 'attack',
             frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 10 }),
             frameRate: 10,
-            repeat: -1
+            repeat: 0
         });
 
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -179,13 +179,13 @@ class Level extends Phaser.Scene
         } else {
             this.playerController.setState('idle');
         }
-        
         if (this.cursors.up.isDown && this.player.body.touching.down)
         {
             this.player.setVelocityY(-400);
         }
         // Long-range attack
-        if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
+        if (Phaser.Input.Keyboard.JustDown(this.cursors.space)) {   
+            this.player.anims.play('attack', true);
             this.projectile.setPosition(this.player.x, this.player.y);
             this.projectile.setVisible(true);
             // Set the velocity of the projectile based on the direction the player is facing
@@ -252,3 +252,17 @@ const config = {
 
 
 const game = new Phaser.Game(config);
+
+// Music
+const audio = document.getElementById('bgm');
+
+audio.addEventListener('ended', function() {
+  audio.currentTime = 0; // reset playback position to beginning
+  audio.play(); // play the audio file again
+});
+navigator.mediaSession.setActionHandler('play', function() { /* Code excerpted. */ });
+navigator.mediaSession.setActionHandler('pause', function() { /* Code excerpted. */ });
+navigator.mediaSession.setActionHandler('seekbackward', function() { /* Code excerpted. */ });
+navigator.mediaSession.setActionHandler('seekforward', function() { /* Code excerpted. */ });
+navigator.mediaSession.setActionHandler('previoustrack', function() { /* Code excerpted. */ });
+navigator.mediaSession.setActionHandler('nexttrack', function() { /* Code excerpted. */ });
