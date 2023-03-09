@@ -213,3 +213,17 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+
+// Music
+const audio = document.getElementById('bgm');
+
+audio.addEventListener('ended', function() {
+  audio.currentTime = 0; // reset playback position to beginning
+  audio.play(); // play the audio file again
+});
+navigator.mediaSession.setActionHandler('play', function() { /* Code excerpted. */ });
+navigator.mediaSession.setActionHandler('pause', function() { /* Code excerpted. */ });
+navigator.mediaSession.setActionHandler('seekbackward', function() { /* Code excerpted. */ });
+navigator.mediaSession.setActionHandler('seekforward', function() { /* Code excerpted. */ });
+navigator.mediaSession.setActionHandler('previoustrack', function() { /* Code excerpted. */ });
+navigator.mediaSession.setActionHandler('nexttrack', function() { /* Code excerpted. */ });
