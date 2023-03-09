@@ -16,6 +16,40 @@ import mainHelloWorldBubble2 from './assets/mainHelloWorldBubble2.png';
 import mainHelloWorldBubble3 from './assets/mainHelloWorldBubble3.png';
 import mainHelloWorldBubble4 from './assets/mainHelloWorldBubble4.png';
 import mainHelloWorldBubble5 from './assets/mainHelloWorldBubble5.png';
+import heart from './assets/heart.png';
+
+class HealthBar {
+    constructor (scene)
+    {
+        this.x = 60;
+        this.y = -10;
+        this.scale = .13;
+
+        this.hearts = scene.physics.add.staticGroup();
+        this.h1 = this.hearts.create(this.x, this.y, 'heart').setOrigin(0).setScale(this.scale).refreshBody().setScrollFactor(0);
+        this.h2 = this.hearts.create(this.x + 60, this.y, 'heart').setOrigin(0).setScale(this.scale).refreshBody().setScrollFactor(0);
+        this.h3 = this.hearts.create(this.x + 120, this.y, 'heart').setOrigin(0).setScale(this.scale).refreshBody().setScrollFactor(0);
+
+    }
+    update(playerHealth)
+    {
+        if (playerHealth == 1) {
+            this.h1.visible = true;
+            this.h2.visible = false;
+            this.h3.visible = false;
+        }
+        if (playerHealth == 2) {
+            this.h1.visible = true;
+            this.h2.visible = true;
+            this.h3.visible = false;
+        }
+        if (playerHealth == 3) {
+            this.h1.visible = true;
+            this.h2.visible = true;
+            this.h3.visible = true;
+        }
+    }
+}
 
 class Level extends Phaser.Scene
 {
@@ -42,6 +76,7 @@ class Level extends Phaser.Scene
         this.load.image('mainHelloWorldBubble3', mainHelloWorldBubble3);
         this.load.image('mainHelloWorldBubble4', mainHelloWorldBubble4);
         this.load.image('mainHelloWorldBubble5', mainHelloWorldBubble5);
+        this.load.image('heart', heart);
     }
       
     create ()
@@ -87,14 +122,29 @@ class Level extends Phaser.Scene
         // this.player.setBounce(0.2);
         this.player.setCollideWorldBounds(true);
 
+        //Add setup for player health and display healthbar
+        this.player.health = 3;
+        this.player.immune = false;
+        this.HealthBar = new HealthBar(this, this.player.health);
+
         this.cameras.main.startFollow(this.player);
         
         this.physics.add.collider(this.player, this.platforms);
         this.physics.add.collider(this.player, this.invisWall);
 
-        // Add collision event with player and spikes (restarts the scene on collision)
+        // Add collision event with player and spikes 
         this.physics.add.collider(this.player, this.spikes, () =>  {
-            this.scene.restart();
+            // Return if player is immune 
+            if (this.player.immune) {return;}
+            
+            // Make player immune for 2 seconds
+            this.player.immune = true;
+            setTimeout(() => this.player.immune = false, 2000);
+
+            this.player.health--;
+            this.HealthBar.update(this.player.health);
+            // If the player's health hits 0, scene restarts
+            if (this.player.health <= 0) {this.scene.restart();}
         });
 
         this.anims.create({
@@ -142,18 +192,23 @@ class Level extends Phaser.Scene
             ]
         });
 
-        this.enemy1.anims.create({
-            key: 'left',
-            frames: this.anims.generateFrameNumbers('enemyRev', { start: 0, end: 7}),
-            frameRate: 10,
-            repeat: -1
-        });
+        // Add collision event with player and the enemy
+        this.physics.add.collider(this.player, enemy1, () =>  {
+            //return if player is immune
+            if (this.player.immune) {return;}
+            
+            // Make player immune for 2 seconds
+            this.player.immune = true;
+            setTimeout(() => this.player.immune = false, 2000);
 
-        this.enemy1.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('enemy', { start: 0, end: 7}),
-            frameRate: 10,
-            repeat: -1
+
+            // TODO: This is optional
+            // Detroy enemy after a collision
+            enemy1.destroy();
+
+            this.player.health--;
+            this.HealthBar.update(this.player.health);
+            if (this.player.health <= 0) {this.scene.restart();}
         });
 
         let movingPlatform = this.physics.add.image(300, 1500, 'mainHelloWorldBubble5')
@@ -189,13 +244,6 @@ class Level extends Phaser.Scene
         {
             this.player.setVelocityY(-400);
         }
-
-        if (this.enemy1.body.x < 0) {
-            this.enemy1.anims.play('left');
-        } else if (this.enemy1.body.x > 0) {
-            this.enemy1.anims.play('right');
-          }
-
     }
 }
 
