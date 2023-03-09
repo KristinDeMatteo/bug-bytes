@@ -20,6 +20,11 @@ import playButton from './assets/strt.png';
 
 class Level extends Phaser.Scene
 {
+    constructor()
+    {
+        super("Level");
+    }
+
     preload ()
     {
         this.load.image('sky', skyImg);
@@ -196,6 +201,11 @@ class Level extends Phaser.Scene
 
 class MainMenu extends Phaser.Scene 
 {
+    constructor()
+    {
+        super("MainMenu");
+    }
+
     preload()
     {
         this.load.image('play-button', playButton);
@@ -223,23 +233,14 @@ class MainMenu extends Phaser.Scene
 
         this.input.on('gameobjectdown', this.onObjectClicked, this)
     }
-
-    update()
-    {
-
-    }
-
 }
-
-var sceneMain = new MainMenu();
-var sceneLevel = new Level();
 
 const config = {
 	type: Phaser.AUTO,
 	parent: 'phaser-example',
 	width: 800,
 	height: 600,
-	scene: [sceneMain],
+	scene: [MainMenu, Level],
 	physics: {
 		default: 'arcade',
 		arcade: {
