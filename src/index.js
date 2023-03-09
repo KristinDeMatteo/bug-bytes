@@ -103,7 +103,7 @@ class Level extends Phaser.Scene {
         this.spikes = this.physics.add.staticGroup();
         
         //This is the deadly platform (for spikes)
-        this.spikes.create(450, 400, 'spikes').setOrigin(0).refreshBody();
+        this.spikes.create(450, 450, 'spikes').setOrigin(0).refreshBody();
         this.spikes.create(75, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
         this.spikes.create(172, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
         this.spikes.create(172 * 2, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
@@ -111,16 +111,14 @@ class Level extends Phaser.Scene {
         this.spikes.create(172 * 4, 1129 * 2 - 48, 'spikes').setOrigin(0).refreshBody();
 
         this.platforms.create(75, 207, 'mainHelloWorld').setOrigin(0).refreshBody();
-        this.platforms.create(475, 500, 'mainHelloWorldBubble').refreshBody();
+        this.platforms.create(475, 550, 'mainHelloWorldBubble').refreshBody();
         this.platforms.create(75, 720, 'mainHelloWorldBubble2').setOrigin(0).refreshBody();
         this.platforms.create(75, 1000, 'mainHelloWorldBubble3').setOrigin(0).refreshBody();
-
-        //review this line
-        //this.player.setSize(50, 75, true);
         
         this.winPlatform.create(100, 2175, 'winLine').setOrigin(0).refreshBody();
 
-        this.player = this.physics.add.sprite(90, 175, 'dude');
+        this.player = this.physics.add.sprite(100, 170, 'dude');
+        this.player.setSize(50, 75, true);
         this.player.setCollideWorldBounds(true);
 
         //Add setup for player health and display healthbar
@@ -181,7 +179,7 @@ class Level extends Phaser.Scene {
         this.playerController.setState('idle');
 
         // enemy controls
-        let enemy1 = this.physics.add.sprite(100, 100, 'enemy').setVelocity(100, -100);
+        let enemy1 = this.physics.add.sprite(75, 700, 'enemy').setVelocity(100, -100);
         enemy1.setSize(100, 55, true);
         this.physics.add.collider(enemy1, this.platforms);
         this.tweens.timeline({
@@ -231,9 +229,9 @@ class Level extends Phaser.Scene {
         });
 
         // Add collision events between the projectile and the enemies
-        this.physics.add.overlap(this.projectile, this.enemies, (projectile, enemy) => {
-            enemy.destroy();
-            projectile.setVisible(false);
+        this.physics.add.collider(this.projectile, this.enemy1, (projectile, enemy1) => {
+            this.enemy1.destroy();
+            this.projectile.setVisible(false);
         });
     }
 
@@ -285,7 +283,6 @@ class Level extends Phaser.Scene {
                     { x:    -150, y: 0, duration: 2000 - modifier, ease: 'Stepped' },
                 ]
             });
-
             this.physics.add.collider(platform, this.player)
         })
     }
@@ -340,7 +337,7 @@ const config = {
 	parent: 'phaser-example',
 	width: 800,
 	height: 600,
-	scene: [MainMenu, Level, WinScene],
+	scene: [Level, MainMenu, WinScene],
 	physics: {
 		default: 'arcade',
 		arcade: {
