@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import PlayerController from './PlayerController';
-import dudeImg from './assets/femaleSpriteSheet2.png';
-import dudeImgRev from './assets/femaleSpriteSheet2Rev.png';
+import dudeImg from './assets/femaleSpriteSheet4.png';
+import dudeImgRev from './assets/femaleSpriteSheet4Rev.png';
+import enemyImg from './assets/bugBytesV2.png';
+import enemyImgRev from './assets/bugBytesV2Rev.png';
 import groundImg from './assets/platform.png';
 import menubackground from './assets/menu.png';
 import winScreen from './assets/winScreen.png';
@@ -17,8 +19,42 @@ import mainHelloWorldBubble2 from './assets/mainHelloWorldBubble2.png';
 import mainHelloWorldBubble3 from './assets/mainHelloWorldBubble3.png';
 import mainHelloWorldBubble4 from './assets/mainHelloWorldBubble4.png';
 import mainHelloWorldBubble5 from './assets/mainHelloWorldBubble5.png';
+import heart from './assets/heart.png';
 import playButton from './assets/strt.png';
 import winLine from './assets/winLine.png';
+
+class HealthBar {
+    constructor (scene)
+    {
+        this.x = 60;
+        this.y = -10;
+        this.scale = .13;
+
+        this.hearts = scene.physics.add.staticGroup();
+        this.h1 = this.hearts.create(this.x, this.y, 'heart').setOrigin(0).setScale(this.scale).refreshBody().setScrollFactor(0);
+        this.h2 = this.hearts.create(this.x + 60, this.y, 'heart').setOrigin(0).setScale(this.scale).refreshBody().setScrollFactor(0);
+        this.h3 = this.hearts.create(this.x + 120, this.y, 'heart').setOrigin(0).setScale(this.scale).refreshBody().setScrollFactor(0);
+
+    }
+    update(playerHealth)
+    {
+        if (playerHealth == 1) {
+            this.h1.visible = true;
+            this.h2.visible = false;
+            this.h3.visible = false;
+        }
+        if (playerHealth == 2) {
+            this.h1.visible = true;
+            this.h2.visible = true;
+            this.h3.visible = false;
+        }
+        if (playerHealth == 3) {
+            this.h1.visible = true;
+            this.h2.visible = true;
+            this.h3.visible = true;
+        }
+    }
+}
 
 class Level extends Phaser.Scene {
     constructor() {
@@ -28,8 +64,10 @@ class Level extends Phaser.Scene {
     preload () {
         this.load.image('sky', skyImg);
         this.load.image('ground', groundImg);
-        this.load.spritesheet('dude', dudeImg, { frameWidth: 50, frameHeight: 50 });
-        this.load.spritesheet('dudeRev', dudeImgRev, { frameWidth: 50, frameHeight: 50 });
+        this.load.spritesheet('dude', dudeImg, { frameWidth: 75, frameHeight: 75 });
+        this.load.spritesheet('dudeRev', dudeImgRev, { frameWidth: 75, frameHeight: 75 });
+        this.load.spritesheet('enemy', enemyImg, { frameWidth: 80, frameHeight: 80 });
+        this.load.spritesheet('enemyRev', enemyImgRev, { frameWidth: 80, frameHeight: 80 });
         this.load.image('bg1', bgImg1);
         this.load.image('bg2', bgImg2);
         this.load.image('invisWall', invisWall);
@@ -40,6 +78,7 @@ class Level extends Phaser.Scene {
         this.load.image('mainHelloWorldBubble3', mainHelloWorldBubble3);
         this.load.image('mainHelloWorldBubble4', mainHelloWorldBubble4);
         this.load.image('mainHelloWorldBubble5', mainHelloWorldBubble5);
+        this.load.image('heart', heart);
         this.load.image('projectile', semicolon);
         this.load.image('winLine', winLine);
     }
@@ -76,25 +115,38 @@ class Level extends Phaser.Scene {
         this.platforms.create(75, 720, 'mainHelloWorldBubble2').setOrigin(0).refreshBody();
         this.platforms.create(75, 1000, 'mainHelloWorldBubble3').setOrigin(0).refreshBody();
 
+        //review this line
+        //this.player.setSize(50, 75, true);
+        
         this.winPlatform.create(100, 2175, 'winLine').setOrigin(0).refreshBody();
 
         this.player = this.physics.add.sprite(90, 175, 'dude');
         this.player.setCollideWorldBounds(true);
+
+        //Add setup for player health and display healthbar
+        this.player.health = 3;
+        this.player.immune = false;
+        this.HealthBar = new HealthBar(this, this.player.health);
 
         this.cameras.main.startFollow(this.player);
         
         this.physics.add.collider(this.player, this.platforms);
         this.physics.add.collider(this.player, this.invisWall);
 
-        // Add collision event with player and spikes (restarts the scene on collision)
+        // Add collision event with player and spikes 
         this.physics.add.collider(this.player, this.spikes, () =>  {
-            this.scene.restart();
-        });
+            // Return if player is immune 
+            if (this.player.immune) {return;}
+            
+            // Make player immune for 2 seconds
+            this.player.immune = true;
+            setTimeout(() => this.player.immune = false, 2000);
 
-        this.physics.add.collider(this.player, this.winPlatform, () =>  {
-            this.scene.start('WinScene');
+            this.player.health--;
+            this.HealthBar.update(this.player.health);
+            // If the player's health hits 0, scene restarts
+            if (this.player.health <= 0) {this.scene.restart();}
         });
-
 
         this.anims.create({
             key: 'left',
@@ -128,6 +180,38 @@ class Level extends Phaser.Scene {
         this.playerController = new PlayerController(this.player);
         this.playerController.setState('idle');
 
+        // enemy controls
+        let enemy1 = this.physics.add.sprite(100, 100, 'enemy').setVelocity(100, -100);
+        enemy1.setSize(100, 55, true);
+        this.physics.add.collider(enemy1, this.platforms);
+        this.tweens.timeline({
+            targets: enemy1.body.velocity,
+            loop: -1,
+            tweens: [
+                { x: 150, duration: 2000, ease: 'Stepped' },
+                { x: -150, duration: 2000, ease: 'Stepped'}
+            ]
+        });
+
+        // Add collision event with player and the enemy
+        this.physics.add.collider(this.player, enemy1, () =>  {
+            //return if player is immune
+            if (this.player.immune) {return;}
+            
+            // Make player immune for 2 seconds
+            this.player.immune = true;
+            setTimeout(() => this.player.immune = false, 2000);
+
+
+            // TODO: This is optional
+            // Detroy enemy after a collision
+            enemy1.destroy();
+
+            this.player.health--;
+            this.HealthBar.update(this.player.health);
+            if (this.player.health <= 0) {this.scene.restart();}
+        });
+        
         this.createMovingPlatforms()
 
         // Add the player's projectile as a sprite and make it invisible
